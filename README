@@ -1,0 +1,56 @@
+Plasma Density Diagnostics at FLASHForward, DESY - written by Lewis Dickson - Summer project 2018
+
+This script uses the longitudinal laser diagnostics at FLASHForward, DESY, to produce the plasma density within the plasma cell and perform
+diagnostics on the laser.
+
+Steps for use:
+1) Create and define directories for the saving (or retrival of background) data. 
+2) Select desired user settings in the ``user input'' section
+3) Run!
+
+
+##### USER SETTINGS #####
+-> "example_setting" : '0' will instruct the code to gather data from the laser diagnostics, '1' will run the Gaussian laser distrobution
+example whose intensities can be defined by the user on line 261. '2' will use preloaded data in a location that must be defined in
+the directory section begining at line 24.
+-> "hide_fig" : self-explanatory 
+-> "plasma_choice" : '1' gives the ratio of plasma to neutral gas, otherwise absolute plasama density is calculated. For the 
+absolute plasma density to be calculated the gas density must be defined in line 67.
+-> "only_take_data" : '1' will stop all data analyis. Otherwise full data anlysis is performed. This is useful for recording 
+laser intensities quickly without the other data analysis.  
+-> "remove_background" : '1' removes background pixels from intensity measurements. Removes premeasured camera background
+intensities from the measured intensities. To use this function the background must be defined in the directory definintion 
+section beggining at line 24. 
+-> "calculate_plasma_density_ration" : self-explanatory
+-> "center_images" : value of '1' will run the image allignement function. This can be used for alligning the images once measured
+(example_setting 2) or from the live data taking (example_setting 0).
+-> "calculate_real_intensity" : value of '1' will use the "intensity_from_energy_calc" routine to change the camera pixel values to
+actual intensities using "real_time_energy" variable (defined on line 518) to do the conversion. User should redefine this energy
+or change it so that this can be read from beam diagnostics on line 518.
+
+###### OWIS/PICO MOTOR COMMANDS #####
+OWIS
+-> JDDD location: 'FLASH.DIAG/FFW.TUNNEL.FOCUS/MOTOR1'
+-> setting position: 'FLASH.DIAG/FFW.TUNNEL.FOCUS/MOTOR1/POS.SET'
+-> actual position: 'FLASH.DIAG/FFW.TUNNEL.FOCUS/MOTOR1/POS'
+-> move command: CMD_1 = doocswrite('FLASH.DIAG/FFW.TUNNEL.FOCUS/MOTOR1/CMD',1)
+-> stop command: CMD_2 = doocswrite('FLASH.DIAG/FFW.TUNNEL.FOCUS/MOTOR1/CMD',2)
+
+PICO 1 (Reallignment - independent vertical and horizontal movement)
+-> JDDD location: 'FLASH.DIAG/FFWD.PICO.5/PICO_DEVICE1'
+VERTICAL
+-> set relative position : pico_1_vert_set = doocswrite('FLASH.DIAG/FFWD.PICO.5/PICO_DEVICE1/PICOMOTOR.TARGET_POSITION1', set_position_vert)
+-> move command :  pico_1_vert_move = doocswrite('FLASH.DIAG/FFWD.PICO.5/PICO_DEVICE1/PICOMOTOR.COMMAND1', 1)
+
+HORIZONTAL
+-> set relative position : pico_1_horz_set = doocswrite('FLASH.DIAG/FFWD.PICO.5/PICO_DEVICE1/PICOMOTOR.TARGET_POSITION2', set_position_horz)
+-> move commnd : pico_1_horz_move = doocswrite('FLASH.DIAG/FFWD.PICO.5/PICO_DEVICE1/PICOMOTOR.COMMAND2', 1)
+
+##### KNOWN ISSUES #####
+-> Currently the post processing image allignment is not working as expected. Image moves opposite to what is expected.
+-> Matlab crashes when combining more than five contour plots for the plasma density distrobution
+-> The plasma density seems too large for the input values. 
+
+##### Redundant code #####
+-> "laser_intensity_scaling" This is now done by the "intensity_from_energy_calc" function. 
+-> definintion of x/y coordinates on lines 106-112 and 116-124 as this is now done with real pixel dimensions. 
