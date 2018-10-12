@@ -656,29 +656,31 @@ intensity_image = double(intensity_image);
 initial_dim_row = size(intensity_image,1);
 initial_dim_col = size(intensity_image,2);
 
-col_sum_align = sum(intensity_image,1);
-row_sum_align = sum(intensity_image,2);
+[size_x , size_y] = size(intensity_image);
+x_centre = size_y./2; %set the x position of the centre of the camera
+y_centre = size_x./2;%set the y position of the centre of the camera
 
-col_weighted_center = find(col_sum_align==median(col_sum_align(:)));
-row_weighted_center = find(row_sum_align==median(row_sum_align(:)));
+sum_x_centroid = sum(intensity_image,1);
+sum_y_centroid = sum(intensity_image,2);
+x_mean = sum((sum_x_centroid.*[1:length(sum_x_centroid)])./(sum(sum_x_centroid)));
+y_mean = sum((sum_y_centroid.*[1:length(sum_y_centroid)]')./(sum(sum_y_centroid)));
 
 A=mat2gray(double(intensity_image));
-center_pixel=size(A)/2+.5;
-move_col = center_pixel(2)-col_weighted_center; %will move negative for an apparent image centre larger than actual image centre and vice versa
-move_row = center_pixel(1)-row_weighted_center;
+move_col = x_centre-x_mean; %will move negative for an apparent image centre larger than actual image centre and vice versa
+move_row = y_centre-y_mean;
 Alligned_image = imtranslate(intensity_image,[move_col, move_row]);
 
-if move_col < 0
+if move_col > 0
     lower_col = initial_dim_col + move_col;
     fill_vec_col = lower_col:initial_dim_col;
-elseif move_col > 0
+elseif move_col < 0
     fill_vec_col = 1:move_col;
 end
 
-if move_row < 0
+if move_row > 0
     lower_row = initial_dim_row + move_row;
     fill_vec_row = [lower_row:initial_dim_row];
-elseif move_row >0
+elseif move_row <0
     fill_vec_row = [1:move_row];
 end
 
